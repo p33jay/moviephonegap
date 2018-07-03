@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="styles.css">
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<body>
+
+<div class="container">
+<div class="col-md-3 col-md-offset-5">
+
+<div ng-app="myApp" ng-controller="movieCtrl"> 
+
+<form class="form-horizontal" ng-submit="submitSearch(myForm.$valid)" name="myForm" novalidate>
+
+<div class="form-group">
+  
+   <strong><h3>{{ searchHeader }}</h3> </strong> 
+    </br>
+   <strong><h4>{{ display }}</h4></strong>
+   </br>
+   </br>
+
+  <label>Enter your birth year: </label>
+  <input type="number" class="form-control" ng-model="birthyear" ng-minlength="4" ng-maxlength="4" required>
+</div>
+
+
+<div class="form-group">
+  <label>Enter a movie title: </label>
+  <input type="text" class="form-control" ng-model="search" required>
+</div>
+<input type="submit" value="Check it!" class="btn btn-primary btn-block">
+</div>
+</div>
+</form>
+<script>
+
+var app = angular.module('myApp', []);
+
+app.controller('movieCtrl', function($scope, $http) {
+
+$scope.submitSearch = function (isValid){
+
+$scope.searchHeader = "";
+
+var currentTime = new Date();
+var year = currentTime.getFullYear();
+if ($scope.birthyear < 1900 || $scope.birthyear > year){
+  isValid = false;
+}
+
+if (isValid){
+$scope.urlsearch = "http://www.omdbapi.com/?t="+$scope.search+"&apikey=c2609f89";
+	$http.get($scope.urlsearch).then(function (response) {
+      $scope.myData = response.data;
+      $scope.calculate = $scope.myData.Year - $scope.birthyear;
+      $scope.searchHeader = "IMDB Search Result: " + $scope.myData.Title;  
+      if ($scope.calculate >= 0){
+      $scope.display = "You were " + $scope.calculate + " when it came out";
+     
+      }
+      else if ($scope.calculate < 0){
+      $scope.calculate*=-1;
+      $scope.display = "This movie came out " + $scope.calculate + " years before you were born!";
+      
+      }	
+      else {
+      $scope.display = "Invalid search, no results!";
+      $scope.searchHeader = "";  
+      }
+      
+  });
+}
+else{
+  $scope.display = "Invalid birthyear entered. Enter a year from 1900 to the current year";
+}
+};
+});
+</script>
+</div>
+</body>
+</html>
